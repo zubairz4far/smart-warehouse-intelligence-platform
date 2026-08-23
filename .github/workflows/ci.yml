@@ -46,6 +46,8 @@ jobs:
             --data-dir .cache/online-retail \
             --output /tmp/v0.1_uci_online_retail.json \
             | tee /tmp/v0.1_uci_online_retail.log
+      - name: Verify frozen v0.1 evidence
+        run: diff -u evals/results/v0.1_uci_online_retail.json /tmp/v0.1_uci_online_retail.json
       - uses: actions/upload-artifact@v4
         with:
           name: v0.1-warehouse-evidence
