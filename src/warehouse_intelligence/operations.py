@@ -43,7 +43,12 @@ def make_slots(*, aisles: int = 10, bays_per_aisle: int = 25) -> list[Slot]:
 
 def _pick_frequency(frame: pd.DataFrame, *, before: pd.Timestamp, skus: list[str]) -> pd.Series:
     history = frame[(frame["week_start"] < before) & frame["StockCode"].isin(skus)]
-    return history.groupby("StockCode")["InvoiceNo"].nunique().reindex(skus, fill_value=0).astype(float)
+    return (
+        history.groupby("StockCode")["InvoiceNo"]
+        .nunique()
+        .reindex(skus, fill_value=0)
+        .astype(float)
+    )
 
 
 def assign_slots(
@@ -91,7 +96,9 @@ def evaluate_slotting(
     slots = make_slots()
     baseline, optimized = assign_slots(frame, before=train_before, skus=skus, slots=slots)
     test = frame[(frame["week_start"] >= test_start) & frame["StockCode"].isin(skus)]
-    order_groups = test.groupby("InvoiceNo")["StockCode"].agg(lambda values: set(values.astype(str)))
+    order_groups = test.groupby("InvoiceNo")["StockCode"].agg(
+        lambda values: set(values.astype(str))
+    )
     baseline_distances = order_groups.map(lambda items: route_distance(items, baseline))
     optimized_distances = order_groups.map(lambda items: route_distance(items, optimized))
     baseline_total = float(baseline_distances.sum())
