@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements-ci.txt
+      - run: pip install -e . --no-deps
+      - run: ruff check .
+      - run: pytest -q
+
+  uci-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/cache@v4
+        with:
+          path: .cache/online-retail
+          key: uci-online-retail-352-v1
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements-ci.txt
+      - run: pip install -e . --no-deps
+      - name: Run UCI Online Retail v0.1 benchmark
+        run: |
+          warehouse-intelligence benchmark \
+            --download \
+            --data-dir .cache/online-retail \
+            --output /tmp/v0.1_uci_online_retail.json \
+            | tee /tmp/v0.1_uci_online_retail.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v0.1-warehouse-evidence
+          path: /tmp/v0.1_uci_online_retail.json
+          retention-days: 14
