@@ -70,9 +70,11 @@ def ensure_retail_file(data_dir: str | Path, *, download: bool = False) -> tuple
         return archive_path, workbook_path
     if not archive_path.exists():
         if not download:
-            raise FileNotFoundError(
-                f"Missing {WORKBOOK_FILENAME}. Re-run with --download or place the UCI file in {root}."
+            message = (
+                f"Missing {WORKBOOK_FILENAME}. Re-run with --download or place the UCI file "
+                f"in {root}."
             )
+            raise FileNotFoundError(message)
         _download(ARCHIVE_URL, archive_path)
     root.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(archive_path) as archive:
