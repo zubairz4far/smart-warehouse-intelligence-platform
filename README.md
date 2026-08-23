@@ -2,41 +2,74 @@
 
 [![CI](https://github.com/zubairz4far/smart-warehouse-intelligence-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/zubairz4far/smart-warehouse-intelligence-platform/actions/workflows/ci.yml)
 
-Real-data warehouse analytics and optimization on the UCI Online Retail transaction history.
+Real-data warehouse analytics and optimization on the UCI Online Retail transaction history: temporal SKU demand forecasting, ABC analysis, inventory targets, and held-out slotting evaluation.
 
-## v0.1 scope
+## Status
 
-The first release is deliberately different from a generic forecasting notebook. It connects four warehouse decisions under one temporal evaluation contract:
+**v0.1 — evaluated UCI Online Retail benchmark.**
 
-- **SKU demand forecasting** — one-week-ahead weekly demand using lag/rolling/seasonal features;
-- **ABC intelligence** — merchandise-value classes calculated only from pre-test history;
-- **slotting optimization** — assignment of high-frequency SKUs to lower-travel locations;
-- **inventory targets** — illustrative one-week order-up-to targets from recent demand and variability.
+The benchmark processes 541,909 raw transactions into 527,794 positive physical-shipment lines across 19,778 invoices and 3,806 physical SKU codes. Raw data is downloaded from UCI and verified by SHA256; it is not committed to this repository.
 
-The UCI dataset contains timestamped transactions from a UK non-store retailer between December 2010 and December 2011. Raw data is downloaded from UCI at benchmark time and is not committed here.
+## Headline results
 
-## Leakage controls
+### Demand forecasting: simpler baseline wins
+
+The top 250 SKUs are selected before the development period. Forecast features use prior-week information only. Development data selects the four-week moving average as the naive baseline and `hist_gbdt_small` as the nonlinear candidate; the final eight complete weeks remain untouched until test evaluation.
+
+| Forecast | Test WAPE ↓ | MAE ↓ | RMSE ↓ | Underforecast units ↓ |
+|---|---:|---:|---:|---:|
+| Last week | 0.6753 | 160.126 | 350.556 | 156,825.00 |
+| **Four-week moving average** | **0.5647** | **133.887** | **284.249** | **139,442.25** |
+| HistGradientBoosting | 0.5981 | 141.807 | 332.594 | 174,503.62 |
+
+**ML promotion decision: REJECT.** The nonlinear model looked slightly better on development WAPE but generalized worse than the moving-average baseline on the untouched test period. The repository freezes this rejection instead of retuning after test observation.
+
+### Slotting: held-out route proxy improves 10.26%
+
+A deterministic 10-aisle × 25-bay simulated layout is optimized with linear assignment using only pre-test pick frequency. It is then evaluated on **4,307 later real invoices**.
+
+| Layout | Held-out route proxy ↓ |
+|---|---:|
+| Baseline deterministic assignment | 800,664 |
+| **Frequency-optimized assignment** | **718,514** |
+
+**Reduction: 10.26%.** This is a simulated-layout routing proxy using real order composition, not a claim of 10.26% physical labor or fulfillment-time savings in the source retailer's warehouse.
+
+### ABC and inventory intelligence
+
+Pre-test shipped merchandise value produces **779 A**, **959 B**, and **1,946 C** class physical SKUs. The project also emits illustrative one-week order-up-to targets from recent demand and variability. Those targets are explicitly analytical because the source has no on-hand stock, supplier lead times, case packs, capacity, or service-level history.
+
+Machine-readable evidence: [`evals/results/v0.1_uci_online_retail.json`](evals/results/v0.1_uci_online_retail.json).
+
+Full methodology and limitations: [`docs/uci-online-retail-v0.1.md`](docs/uci-online-retail-v0.1.md).
+
+## Temporal evaluation contract
+
+```text
+historical complete weeks                 development        untouched test
+|--------------------------------------|------ 6 weeks ------|---- 8 weeks ----|
+                                                 2011-08-29       2011-10-10
+```
+
+Leakage controls:
 
 - first and last partial weeks are excluded;
-- SKU selection is frozen before the development window;
-- demand features contain only prior-week information;
-- model/configuration and naive-baseline selection use the development window;
-- the last eight complete weeks are held out for forecast evaluation;
-- slot assignments use only pre-test pick frequency;
-- later observed invoices are used to evaluate the slotting layout.
+- SKU selection is frozen before development;
+- forecast features contain prior observations only;
+- baseline and model configuration selection use development data only;
+- slot assignments use only pre-test invoice frequency;
+- later invoices evaluate the slot layout.
 
-## Forecast promotion rule
+## Data integrity
 
-Two naive baselines are compared on development data: last-week demand and four-week moving average. Two HistGradientBoosting/Poisson configurations are also compared on development data. The selected candidate is promoted on the held-out test period only if:
+Pinned UCI source hashes:
 
-1. candidate WAPE is no worse than the selected naive baseline; and
-2. candidate underforecast units are no more than 105% of the selected baseline.
+```text
+archive   f5385cbb54bbebf7196389109c6b0621faab0c304e3702548165e71c84aede8b
+workbook  43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d
+```
 
-## Slotting evaluation
-
-A 10-aisle × 25-bay deterministic layout is used because the source dataset contains no real warehouse geometry. The optimization objective minimizes **training pick-frequency-weighted slot distance** using linear assignment. The held-out metric is a separate **return-routing distance proxy** over later real invoices.
-
-This is a layout simulation using real order composition, not a claim about physical travel savings in the original retailer's warehouse.
+The loader fails if either source differs from these measured files.
 
 ## Reproduce
 
@@ -51,13 +84,17 @@ pytest -q
 warehouse-intelligence benchmark \
   --download \
   --data-dir .cache/online-retail \
-  --output evals/results/v0.1_uci_online_retail.json
+  --output /tmp/v0.1_uci_online_retail.json
+
+diff -u evals/results/v0.1_uci_online_retail.json /tmp/v0.1_uci_online_retail.json
 ```
+
+CI runs the same pinned Python/scientific environment and rejects any benchmark output that differs from the frozen evidence.
 
 ## Data attribution
 
-Daqing Chen, **Online Retail**, UCI Machine Learning Repository, DOI `10.24432/C5BW33`. The dataset is licensed CC BY 4.0. Repository code is MIT licensed.
+Daqing Chen, **Online Retail**, UCI Machine Learning Repository, DOI `10.24432/C5BW33`. Dataset license: CC BY 4.0. Repository code: MIT.
 
-## Status
+## What this release does not claim
 
-**v0.1 benchmark implementation complete; measured CI evidence pending on this pull request.** No result is claimed until the real-data CI run succeeds and its output is frozen into the repository.
+v0.1 is an offline, reproducible warehouse-intelligence benchmark. It does not claim access to the original warehouse layout, current inventory, replenishment lead times, worker paths, fulfillment SLAs, or measured monetary savings.
