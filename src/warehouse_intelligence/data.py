@@ -16,6 +16,8 @@ ARCHIVE_URL = "https://archive.ics.uci.edu/static/public/352/online%2Bretail.zip
 ARCHIVE_FILENAME = "online_retail.zip"
 WORKBOOK_FILENAME = "Online Retail.xlsx"
 EXPECTED_ROWS = 541_909
+EXPECTED_ARCHIVE_SHA256 = "f5385cbb54bbebf7196389109c6b0621faab0c304e3702548165e71c84aede8b"
+EXPECTED_WORKBOOK_SHA256 = "43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d"
 REQUIRED_COLUMNS = {
     "InvoiceNo",
     "StockCode",
@@ -53,6 +55,12 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def _require_sha256(path: Path, expected: str) -> None:
+    actual = sha256_file(path)
+    if actual != expected:
+        raise ValueError(f"SHA256 mismatch for {path.name}: expected {expected}, found {actual}")
+
+
 def _download(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(destination.suffix + ".part")
@@ -67,6 +75,9 @@ def ensure_retail_file(data_dir: str | Path, *, download: bool = False) -> tuple
     archive_path = root / ARCHIVE_FILENAME
     workbook_path = root / WORKBOOK_FILENAME
     if workbook_path.exists():
+        _require_sha256(workbook_path, EXPECTED_WORKBOOK_SHA256)
+        if archive_path.exists():
+            _require_sha256(archive_path, EXPECTED_ARCHIVE_SHA256)
         return archive_path, workbook_path
     if not archive_path.exists():
         if not download:
@@ -76,6 +87,7 @@ def ensure_retail_file(data_dir: str | Path, *, download: bool = False) -> tuple
             )
             raise FileNotFoundError(message)
         _download(ARCHIVE_URL, archive_path)
+    _require_sha256(archive_path, EXPECTED_ARCHIVE_SHA256)
     root.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(archive_path) as archive:
         matches = [name for name in archive.namelist() if Path(name).name == WORKBOOK_FILENAME]
@@ -83,6 +95,7 @@ def ensure_retail_file(data_dir: str | Path, *, download: bool = False) -> tuple
             raise ValueError(f"Expected exactly one {WORKBOOK_FILENAME} in {archive_path}")
         with archive.open(matches[0]) as source, workbook_path.open("wb") as target:
             shutil.copyfileobj(source, target, length=1024 * 1024)
+    _require_sha256(workbook_path, EXPECTED_WORKBOOK_SHA256)
     return archive_path, workbook_path
 
 
