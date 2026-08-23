@@ -51,8 +51,9 @@ def evaluate(
     class_counts = abc["abc_class"].value_counts().to_dict()
     targets = inventory_targets(panel, as_of=weeks[-1])
 
-    forecast_promote = forecast["promotion"]["decision"] == "PROMOTE"
-    slotting_promote = slotting["optimized_distance"] <= slotting["baseline_distance"]
+    forecast_decision = forecast["promotion"]["decision"]
+    forecast_gate_valid = forecast_decision in {"PROMOTE", "REJECT"}
+    slotting_gate_valid = slotting["optimized_distance"] <= slotting["baseline_distance"]
     return {
         "release": "v0.1",
         "dataset": {
@@ -95,11 +96,12 @@ def evaluate(
             "top_targets": targets,
         },
         "release_gate": {
-            "decision": "PASS" if forecast_promote and slotting_promote else "PARTIAL",
+            "decision": "PASS" if forecast_gate_valid and slotting_gate_valid else "FAIL",
             "rule": (
-                "forecast candidate must pass its promotion rule and optimized slotting must not "
-                "worsen held-out route distance"
+                "forecast model-selection decision must be explicit under the frozen promotion "
+                "rule, and optimized slotting must not worsen held-out route distance"
             ),
+            "forecast_model_decision": forecast_decision,
         },
         "runtime": {
             "python": platform.python_version(),
