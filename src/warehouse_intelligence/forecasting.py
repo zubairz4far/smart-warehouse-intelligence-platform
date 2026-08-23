@@ -162,6 +162,9 @@ def fit_and_evaluate(
         candidate_test.wape <= baseline_test.wape
         and candidate_test.underforecast_units <= 1.05 * baseline_test.underforecast_units
     )
+    rule = (
+        "candidate WAPE <= selected naive baseline and underforecast units <= 105% of baseline"
+    )
     return {
         "split": {
             "train_rows": len(train),
@@ -181,6 +184,6 @@ def fit_and_evaluate(
         "test_metrics": test_metrics,
         "promotion": {
             "decision": "PROMOTE" if promote else "REJECT",
-            "rule": "candidate WAPE <= selected naive baseline and underforecast units <= 105% of baseline",
+            "rule": rule,
         },
     }
