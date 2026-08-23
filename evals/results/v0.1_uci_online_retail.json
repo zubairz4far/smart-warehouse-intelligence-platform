@@ -1,0 +1,468 @@
+{
+  "release": "v0.1",
+  "dataset": {
+    "name": "Online Retail",
+    "uci_dataset_id": 352,
+    "doi": "10.24432/C5BW33",
+    "source_url": "https://archive.ics.uci.edu/dataset/352/online-retail",
+    "license": "CC BY 4.0",
+    "raw_rows": 541909,
+    "clean_physical_shipment_rows": 527794,
+    "invoices": 19778,
+    "physical_skus": 3806,
+    "date_min": "2010-12-01T08:26:00",
+    "date_max": "2011-12-09T12:50:00",
+    "archive_sha256": "f5385cbb54bbebf7196389109c6b0621faab0c304e3702548165e71c84aede8b",
+    "workbook_sha256": "43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d"
+  },
+  "protocol": {
+    "complete_weeks": 51,
+    "sku_selection": "top 250 SKUs by units before development window",
+    "development_start": "2011-08-29",
+    "test_start": "2011-10-10",
+    "test_weeks": 8,
+    "seed": 42
+  },
+  "forecasting": {
+    "split": {
+      "train_rows": 7250,
+      "dev_rows": 1500,
+      "test_rows": 2000,
+      "dev_start": "2011-08-29",
+      "test_start": "2011-10-10"
+    },
+    "selection": {
+      "baseline": "moving_average_4",
+      "candidate": "hist_gbdt_small",
+      "dev_wape": {
+        "last_week": 0.7175839327231022,
+        "moving_average_4": 0.6083321143234184,
+        "hist_gbdt_small": 0.5986768368747223,
+        "hist_gbdt_medium": 0.6115503672353015
+      }
+    },
+    "test_metrics": {
+      "last_week": {
+        "wape": 0.6753322339703172,
+        "mae": 160.126,
+        "rmse": 350.5558186651592,
+        "bias_units": 6602.0,
+        "underforecast_units": 156825.0
+      },
+      "moving_average_4": {
+        "wape": 0.5646670068787509,
+        "mae": 133.8865,
+        "rmse": 284.24896822591984,
+        "bias_units": -11111.5,
+        "underforecast_units": 139442.25
+      },
+      "hist_gbdt_small": {
+        "wape": 0.5980736209472564,
+        "mae": 141.8074420419411,
+        "rmse": 332.5937677169663,
+        "bias_units": -65392.356761885996,
+        "underforecast_units": 174503.62042288407
+      }
+    },
+    "promotion": {
+      "decision": "REJECT",
+      "rule": "candidate WAPE <= selected naive baseline and underforecast units <= 105% of baseline"
+    }
+  },
+  "abc": {
+    "basis": "cumulative shipped merchandise value before test window",
+    "class_counts": {
+      "C": 1946,
+      "B": 959,
+      "A": 779
+    }
+  },
+  "slotting": {
+    "objective": "minimize training pick-frequency-weighted slot distance",
+    "held_out_route_proxy": "return-routing distance across later observed invoices",
+    "orders_evaluated": 4307,
+    "baseline_distance": 800664.0,
+    "optimized_distance": 718514.0,
+    "reduction_fraction": 0.10260234005775204,
+    "recommendations": [
+      {
+        "stock_code": "85123A",
+        "training_order_frequency": 1810,
+        "baseline_slot": {
+          "slot_id": "A10-B23",
+          "aisle": 10,
+          "bay": 23,
+          "distance": 63.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B01",
+          "aisle": 1,
+          "bay": 1,
+          "distance": 5.0
+        }
+      },
+      {
+        "stock_code": "85099B",
+        "training_order_frequency": 1652,
+        "baseline_slot": {
+          "slot_id": "A10-B20",
+          "aisle": 10,
+          "bay": 20,
+          "distance": 60.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B02",
+          "aisle": 1,
+          "bay": 2,
+          "distance": 6.0
+        }
+      },
+      {
+        "stock_code": "22423",
+        "training_order_frequency": 1600,
+        "baseline_slot": {
+          "slot_id": "A05-B18",
+          "aisle": 5,
+          "bay": 18,
+          "distance": 38.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B03",
+          "aisle": 1,
+          "bay": 3,
+          "distance": 7.0
+        }
+      },
+      {
+        "stock_code": "47566",
+        "training_order_frequency": 1506,
+        "baseline_slot": {
+          "slot_id": "A09-B10",
+          "aisle": 9,
+          "bay": 10,
+          "distance": 46.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B04",
+          "aisle": 1,
+          "bay": 4,
+          "distance": 8.0
+        }
+      },
+      {
+        "stock_code": "20725",
+        "training_order_frequency": 1273,
+        "baseline_slot": {
+          "slot_id": "A01-B20",
+          "aisle": 1,
+          "bay": 20,
+          "distance": 24.0
+        },
+        "optimized_slot": {
+          "slot_id": "A02-B01",
+          "aisle": 2,
+          "bay": 1,
+          "distance": 9.0
+        }
+      },
+      {
+        "stock_code": "84879",
+        "training_order_frequency": 1099,
+        "baseline_slot": {
+          "slot_id": "A10-B08",
+          "aisle": 10,
+          "bay": 8,
+          "distance": 48.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B05",
+          "aisle": 1,
+          "bay": 5,
+          "distance": 9.0
+        }
+      },
+      {
+        "stock_code": "22720",
+        "training_order_frequency": 1072,
+        "baseline_slot": {
+          "slot_id": "A07-B02",
+          "aisle": 7,
+          "bay": 2,
+          "distance": 30.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B06",
+          "aisle": 1,
+          "bay": 6,
+          "distance": 10.0
+        }
+      },
+      {
+        "stock_code": "21212",
+        "training_order_frequency": 1070,
+        "baseline_slot": {
+          "slot_id": "A02-B16",
+          "aisle": 2,
+          "bay": 16,
+          "distance": 24.0
+        },
+        "optimized_slot": {
+          "slot_id": "A02-B02",
+          "aisle": 2,
+          "bay": 2,
+          "distance": 10.0
+        }
+      },
+      {
+        "stock_code": "22383",
+        "training_order_frequency": 1047,
+        "baseline_slot": {
+          "slot_id": "A05-B11",
+          "aisle": 5,
+          "bay": 11,
+          "distance": 31.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B07",
+          "aisle": 1,
+          "bay": 7,
+          "distance": 11.0
+        }
+      },
+      {
+        "stock_code": "22386",
+        "training_order_frequency": 1007,
+        "baseline_slot": {
+          "slot_id": "A05-B14",
+          "aisle": 5,
+          "bay": 14,
+          "distance": 34.0
+        },
+        "optimized_slot": {
+          "slot_id": "A02-B03",
+          "aisle": 2,
+          "bay": 3,
+          "distance": 11.0
+        }
+      },
+      {
+        "stock_code": "20727",
+        "training_order_frequency": 993,
+        "baseline_slot": {
+          "slot_id": "A01-B22",
+          "aisle": 1,
+          "bay": 22,
+          "distance": 26.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B08",
+          "aisle": 1,
+          "bay": 8,
+          "distance": 12.0
+        }
+      },
+      {
+        "stock_code": "22457",
+        "training_order_frequency": 988,
+        "baseline_slot": {
+          "slot_id": "A05-B20",
+          "aisle": 5,
+          "bay": 20,
+          "distance": 40.0
+        },
+        "optimized_slot": {
+          "slot_id": "A02-B04",
+          "aisle": 2,
+          "bay": 4,
+          "distance": 12.0
+        }
+      },
+      {
+        "stock_code": "22197",
+        "training_order_frequency": 981,
+        "baseline_slot": {
+          "slot_id": "A05-B02",
+          "aisle": 5,
+          "bay": 2,
+          "distance": 22.0
+        },
+        "optimized_slot": {
+          "slot_id": "A02-B05",
+          "aisle": 2,
+          "bay": 5,
+          "distance": 13.0
+        }
+      },
+      {
+        "stock_code": "21931",
+        "training_order_frequency": 968,
+        "baseline_slot": {
+          "slot_id": "A04-B01",
+          "aisle": 4,
+          "bay": 1,
+          "distance": 17.0
+        },
+        "optimized_slot": {
+          "slot_id": "A01-B09",
+          "aisle": 1,
+          "bay": 9,
+          "distance": 13.0
+        }
+      },
+      {
+        "stock_code": "22961",
+        "training_order_frequency": 943,
+        "baseline_slot": {
+          "slot_id": "A07-B18",
+          "aisle": 7,
+          "bay": 18,
+          "distance": 46.0
+        },
+        "optimized_slot": {
+          "slot_id": "A03-B01",
+          "aisle": 3,
+          "bay": 1,
+          "distance": 13.0
+        }
+      }
+    ]
+  },
+  "inventory_targets": {
+    "assumption": "illustrative one-week order-up-to target; no on-hand inventory or supplier lead-time data exists in UCI source",
+    "service_factor_z": 1.65,
+    "top_targets": [
+      {
+        "stock_code": "23084",
+        "four_week_mean_units": 3432.0,
+        "eight_week_std_units": 1889.4057101374494,
+        "one_week_order_up_to_target": 6550
+      },
+      {
+        "stock_code": "22197",
+        "four_week_mean_units": 3318.75,
+        "eight_week_std_units": 1083.537234016441,
+        "one_week_order_up_to_target": 5107
+      },
+      {
+        "stock_code": "84077",
+        "four_week_mean_units": 985.25,
+        "eight_week_std_units": 1458.5173122044182,
+        "one_week_order_up_to_target": 3392
+      },
+      {
+        "stock_code": "22086",
+        "four_week_mean_units": 1713.25,
+        "eight_week_std_units": 494.9430364951102,
+        "one_week_order_up_to_target": 2530
+      },
+      {
+        "stock_code": "85099B",
+        "four_week_mean_units": 1401.25,
+        "eight_week_std_units": 479.09628468607434,
+        "one_week_order_up_to_target": 2192
+      },
+      {
+        "stock_code": "20668",
+        "four_week_mean_units": 1204.5,
+        "eight_week_std_units": 486.69585921291747,
+        "one_week_order_up_to_target": 2008
+      },
+      {
+        "stock_code": "84879",
+        "four_week_mean_units": 1266.0,
+        "eight_week_std_units": 368.2512516950893,
+        "one_week_order_up_to_target": 1874
+      },
+      {
+        "stock_code": "21915",
+        "four_week_mean_units": 538.5,
+        "eight_week_std_units": 779.2684770828344,
+        "one_week_order_up_to_target": 1825
+      },
+      {
+        "stock_code": "16014",
+        "four_week_mean_units": 148.75,
+        "eight_week_std_units": 982.712190826999,
+        "one_week_order_up_to_target": 1771
+      },
+      {
+        "stock_code": "23203",
+        "four_week_mean_units": 925.5,
+        "eight_week_std_units": 465.399290931991,
+        "one_week_order_up_to_target": 1694
+      },
+      {
+        "stock_code": "22952",
+        "four_week_mean_units": 1009.0,
+        "eight_week_std_units": 396.08409381720946,
+        "one_week_order_up_to_target": 1663
+      },
+      {
+        "stock_code": "85123A",
+        "four_week_mean_units": 888.75,
+        "eight_week_std_units": 448.55427486537235,
+        "one_week_order_up_to_target": 1629
+      },
+      {
+        "stock_code": "22492",
+        "four_week_mean_units": 776.5,
+        "eight_week_std_units": 515.5959991844389,
+        "one_week_order_up_to_target": 1628
+      },
+      {
+        "stock_code": "22616",
+        "four_week_mean_units": 585.5,
+        "eight_week_std_units": 397.2200271889624,
+        "one_week_order_up_to_target": 1241
+      },
+      {
+        "stock_code": "84946",
+        "four_week_mean_units": 740.0,
+        "eight_week_std_units": 258.4642141573955,
+        "one_week_order_up_to_target": 1167
+      },
+      {
+        "stock_code": "20971",
+        "four_week_mean_units": 367.5,
+        "eight_week_std_units": 451.8639175681103,
+        "one_week_order_up_to_target": 1114
+      },
+      {
+        "stock_code": "17003",
+        "four_week_mean_units": 257.0,
+        "eight_week_std_units": 506.6273285167313,
+        "one_week_order_up_to_target": 1093
+      },
+      {
+        "stock_code": "23301",
+        "four_week_mean_units": 625.5,
+        "eight_week_std_units": 243.33670088993975,
+        "one_week_order_up_to_target": 1028
+      },
+      {
+        "stock_code": "23201",
+        "four_week_mean_units": 575.25,
+        "eight_week_std_units": 266.27191811191807,
+        "one_week_order_up_to_target": 1015
+      },
+      {
+        "stock_code": "22178",
+        "four_week_mean_units": 466.25,
+        "eight_week_std_units": 321.596408562036,
+        "one_week_order_up_to_target": 997
+      }
+    ]
+  },
+  "release_gate": {
+    "decision": "PASS",
+    "rule": "forecast model-selection decision must be explicit under the frozen promotion rule, and optimized slotting must not worsen held-out route distance",
+    "forecast_model_decision": "REJECT"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "numpy": "2.5.2",
+    "pandas": "2.3.3",
+    "scipy": "1.18.1",
+    "scikit_learn": "1.9.0"
+  }
+}
