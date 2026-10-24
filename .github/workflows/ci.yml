@@ -48,7 +48,7 @@ jobs:
             | tee /tmp/v0.1_uci_online_retail.log
       - name: Verify frozen v0.1 evidence
         run: python scripts/verify_frozen_evidence.py evals/results/v0.1_uci_online_retail.json /tmp/v0.1_uci_online_retail.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: v0.1-warehouse-evidence
           path: /tmp/v0.1_uci_online_retail.json
